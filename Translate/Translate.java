@@ -146,11 +146,11 @@ public class Translate {
   }
 
   public Exp OpExp(int op, Exp left, Exp right) {
-    return Error();
+    return new Ex(BINOP(op, left.unEx(), right.unEx()));
   }
 
   public Exp StrOpExp(int op, Exp left, Exp right) {
-    return Error();
+    return new RelCx(op, left.unEx(), right.unEx());
   }
 
   public Exp RecordExp(ExpList init) {
@@ -162,11 +162,11 @@ public class Translate {
   }
 
   public Exp AssignExp(Exp lhs, Exp rhs) {
-    return Error();
+    return new Nx(MOVE(lhs.unEx(), rhs.unEx()));
   }
 
   public Exp IfExp(Exp cc, Exp aa, Exp bb) {
-    return Error();
+    return new IfThenElseExp(cc, aa, bb);
   }
 
   public Exp WhileExp(Exp test, Exp body, Label done) {
@@ -182,7 +182,7 @@ public class Translate {
   }
 
   public Exp BreakExp(Label done) {
-    return Error();
+    return new Nx(JUMP(done));
   }
 
   public Exp LetExp(ExpList lets, Exp body) {
