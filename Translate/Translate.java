@@ -92,7 +92,13 @@ public class Translate {
   }
 
   public Exp SimpleVar(Access access, Level level) {
-    return Error();
+    Level lvl = level;
+    Tree.Exp framePointer = TEMP(level.frame.FP());
+    while(lvl != access.home) {
+      framePointer = lvl.formals.head.exp(framePointer);
+      lvl = lvl.parent;
+    }
+    return new Ex(access.acc.exp(framePointer));
   }
 
   public Exp FieldVar(Exp record, int index) {
@@ -104,11 +110,11 @@ public class Translate {
   }
 
   public Exp NilExp() {
-    return Error();
+    return new Ex(CONST(0));
   }
 
   public Exp IntExp(int value) {
-    return Error();
+    return new Ex(CONST(value));
   }
 
   private java.util.Hashtable strings = new java.util.Hashtable();
