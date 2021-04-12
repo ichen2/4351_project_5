@@ -111,8 +111,8 @@ public class Translate {
 
   public Exp SubscriptVar(Exp array, Exp index) {
     Temp register = new Temp();
-    int offset = BINOP(Tree.BINOP.MUL, index.unEx(), CONST(frame.wordSize()));
-    Temp.Stm stm = MOVE(TEMP(register), array.unEx());
+    Tree.Exp offset = BINOP(Tree.BINOP.MUL, index.unEx(), CONST(frame.wordSize()));
+    Tree.Stm stm = MOVE(TEMP(register), array.unEx());
     Tree.Exp exp = MEM(BINOP(Tree.BINOP.PLUS, TEMP(register), offset));
     return new Ex(ESEQ(stm, exp));
   }
@@ -186,6 +186,24 @@ public class Translate {
     Tree.Stm recordStm = MOVE(TEMP(location), frame.externalCall("allocRecord", ExpList(CONST(count))));
     Tree.Stm fieldStm = recordFields(init, location, 0);
     return new Ex(ESEQ(SEQ(recordStm, fieldStm), TEMP(location)));
+  }
+
+  Tree.Stm recordFields(ExpList field, Temp initialLocation, int offset) {
+    // Calculate the heads location
+    Tree.Stm moveCurrentFieldStm = MOVE(MEM(BINOP(Tree.BINOP.PLUS, TEMP(initialLocation), CONST(offset))), field.head.unEx());
+    
+    if (field.head == null) {
+      // If the head is null, there is a problem, just give a null
+      return null;
+    } else if (field.tail == null) {
+      // If the tail is null, just the move sequence
+      return moveCurrentFieldStm;
+    } else {
+      // If both are present, return a new list recusively
+      Tree.Stm nextField = recordFields(field.tail, initialLocation, offset + frame.wordSize());
+      
+      return SEQ(moveCurrentFieldStm, nextField);
+    }
   }
 
   public Exp SeqExp(ExpList e) {
