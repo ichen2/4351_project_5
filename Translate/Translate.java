@@ -102,11 +102,19 @@ public class Translate {
   }
 
   public Exp FieldVar(Exp record, int index) {
-    return Error();
+    Temp register = new Temp();
+    int offset = index * frame.wordSize();
+    Tree.Stm stm = MOVE(TEMP(register), record.unEx());
+    Tree.Exp exp = MEM(BINOP(Tree.BINOP.PLUS, TEMP(register), CONST(offset)));
+    return new Ex(ESEQ(stm, exp));
   }
 
   public Exp SubscriptVar(Exp array, Exp index) {
-    return Error();
+    Temp register = new Temp();
+    int offset = BINOP(Tree.BINOP.MUL, index.unEx(), CONST(frame.wordSize()));
+    Temp.Stm stm = MOVE(TEMP(register), array.unEx());
+    Tree.Exp exp = MEM(BINOP(Tree.BINOP.PLUS, TEMP(register), offset))
+    return new Ex(ESEQ(stm, exp));
   }
 
   public Exp NilExp() {
@@ -135,7 +143,15 @@ public class Translate {
     return frame.externalCall(f.toString(), ExpList(args));
   }
   private Tree.Exp CallExp(Level f, ExpList args, Level from) {
-    throw new Error("Translate.CallExp unimplemented");
+    Tree.Exp fp = TEMP(from.frame.FP());
+    Level lvl = from;
+    while(lvl != f.parent) {
+      fp = lvl.frame.formals.head.exp(fp);
+      lvl = lvl.parent;
+    }
+    Tree.Exp fun = NAME(f.frame.name);
+    Tree.ExpList pointerArgs = ExpList(fp, ExpList(args));
+    return CALL(fun, pointerArgs);
   }
 
   public Exp FunExp(Symbol f, ExpList args, Level from) {
@@ -160,7 +176,16 @@ public class Translate {
   }
 
   public Exp RecordExp(ExpList init) {
-    return Error();
+    int count = 0;
+    ExpList field = init;
+    while(field != null) {
+      count++;
+      field = field.tail;
+    }
+    Temp location = new Temp();
+    Tree.Stm recordStm = MOVE(TEMP(location), frame.externalCall("allocRecord", ExpList(CONST(count))));
+    Tree.Stm fieldStm = recordFields(init, location, 0);
+    return new Ex(ESEQ(SEQ(recordStm, fieldStm), TEMP(location)));
   }
 
   public Exp SeqExp(ExpList e) {
