@@ -102,7 +102,11 @@ public class Translate {
   }
 
   public Exp FieldVar(Exp record, int index) {
-    return Error();
+    int offset = index * frame.wordSize();
+    Temp register = new Temp();
+    Tree.Stm stm = MOVE(TEMP(register), record.unEx());
+    Tree.Exp exp = MEM(BINOP(Tree.BINOP.PLUS, TEMP(register), CONST(offset)));
+    return new Ex(ESEQ(stm, exp));
   }
 
   public Exp SubscriptVar(Exp array, Exp index) {
