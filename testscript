@@ -7,7 +7,7 @@ do
 
 	echo "testing test $i..."
 	echo "$i" >> $FILE
-	java Semant.Main testcases/test$i.tig >> $FILE
+	java Translate.Main testcases/test$i.tig >> $FILE
 	if [ $i -lt 48 ]; then 
 		echo "" >> $FILE
 	fi

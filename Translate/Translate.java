@@ -95,7 +95,7 @@ public class Translate {
     Level lvl = level;
     Tree.Exp framePointer = TEMP(level.frame.FP());
     while(lvl != access.home) {
-      framePointer = lvl.formals.head.exp(framePointer);
+      framePointer = lvl.formals.head.acc.exp(framePointer);
       lvl = lvl.parent;
     }
     return new Ex(access.acc.exp(framePointer));
