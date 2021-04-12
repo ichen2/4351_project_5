@@ -113,7 +113,7 @@ public class Translate {
     Temp register = new Temp();
     int offset = BINOP(Tree.BINOP.MUL, index.unEx(), CONST(frame.wordSize()));
     Temp.Stm stm = MOVE(TEMP(register), array.unEx());
-    Tree.Exp exp = MEM(BINOP(Tree.BINOP.PLUS, TEMP(register), offset))
+    Tree.Exp exp = MEM(BINOP(Tree.BINOP.PLUS, TEMP(register), offset));
     return new Ex(ESEQ(stm, exp));
   }
 
