@@ -17,7 +17,7 @@ class IfThenElseExp extends Exp {
   Tree.Stm unCx(Label tt, Label ff) {
     // This is the naive implementation; you should extend it to eliminate
     // unnecessary JUMP nodes
-    Tree.Stm aStm = a.unCx(tt, ff);
+    Tree.Stm aStm = a.unCx(tt, ff);//dont know how to extend it
     Tree.Stm bStm = b.unCx(tt, ff);
 
     Tree.Stm condStm = cond.unCx(t, f);
@@ -34,12 +34,25 @@ class IfThenElseExp extends Exp {
   }
 
   Tree.Exp unEx() {
-    // You must implement this function
-    return new Tree.CONST(0);
+    Temp z = new Temp();
+    return new Tree.ESEQ(
+     new Tree.SEQ(cond.unCx(t, f),
+       new Tree.SEQ(new Tree.LABEL(t),
+         new Tree.SEQ(new Tree.MOVE(new Tree.TEMP(z), a.unEx()),
+           new Tree.SEQ(new Tree.JUMP(join),
+             new Tree.SEQ(new Tree.LABEL(f),
+              new Tree.SEQ(new Tree.MOVE(new Tree.TEMP(z), b.unEx()),
+                 new Tree.LABEL(join))))))),
+     new Tree.TEMP(z));
   }
 
   Tree.Stm unNx() {
-    // You must implement this function
-    return null;
+    return new Tree.SEQ(cond.unCx(t,f),
+      new Tree.SEQ(new Tree.LABEL(t),
+        new Tree.SEQ(a.unNx(),
+          new Tree.SEQ(new Tree.JUMP(join),
+            new Tree.SEQ(new Tree.LABEL(f),
+              new Tree.SEQ(b.unNx(),
+                new Tree.LABEL(join)))))));
   }
 }
