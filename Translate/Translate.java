@@ -238,11 +238,10 @@ public class Translate {
   }
 
   public Exp ForExp(Access i, Exp lo, Exp hi, Exp body, Label done) {
-    return Error();
-  }
-
-  public Exp ForExp(Exp id, Exp lo, Exp hi, Exp body, Label done) {
-    return Error();
+    Access limit = i;
+    Level d = i.home;
+    return (new Nx(SEQ(AssignExp(SimpleVar(i, d), lo).unNx(), AssignExp(
+        SimpleVar(limit, d), hi).unNx())));
   }
 
   public Exp BreakExp(Label done) {
@@ -250,7 +249,15 @@ public class Translate {
   }
 
   public Exp LetExp(ExpList lets, Exp body) {
-    return Error();
+    ExpList temp = null;
+    ExpList iter = lets;
+    Exp exp = body;
+    
+    if (iter != null) {
+      return new Ex(ESEQ(iter.head.unNx(), body.unEx()));
+    } else {
+      return new Nx(SEQ(lets.head.unNx(), body.unNx()));
+    }
   }
 
   public Exp ArrayExp(Exp size, Exp init) {
