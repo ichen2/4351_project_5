@@ -244,6 +244,9 @@ public class Translate {
         SimpleVar(limit, d), hi).unNx())));
   }
 
+  public Exp ForExp(Exp id, Exp lo, Exp hi, Exp body, Label done) {
+    return Error();
+
   public Exp BreakExp(Label done) {
     return new Nx(JUMP(done));
   }
