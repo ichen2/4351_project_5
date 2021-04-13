@@ -54,7 +54,7 @@ public class Translate {
   private static Tree.Stm MOVE(Tree.Exp dst, Tree.Exp src) {
     return new Tree.MOVE(dst, src);
   }
-  private static Tree.Stm UEXP(Tree.Exp exp) {
+  private static Tree.Stm UEXP(Tree.Exp exp) {  
     return new Tree.UEXP(exp);
   }
   private static Tree.Stm JUMP(Label target) {
@@ -168,7 +168,7 @@ public class Translate {
   }
 
   public Exp OpExp(int op, Exp left, Exp right) {
-    return new Ex(BINOP(op, left.unEx(), right.unEx()));
+    return new Ex(BINOP(op, left.unEx(), right.unEx()));   
   }
 
   public Exp StrOpExp(int op, Exp left, Exp right) {
@@ -207,7 +207,15 @@ public class Translate {
   }
 
   public Exp SeqExp(ExpList e) {
-    return Error();
+    Nx exp = null;
+    if (e != null)
+      exp = new Nx(null);
+    while (e != null) {
+      if (e.head != null)
+        exp = new Nx(SEQ(e.head.unNx(), exp.unNx()));
+      e = e.tail;
+    }
+    return exp;
   }
 
   public Exp AssignExp(Exp lhs, Exp rhs) {
@@ -219,7 +227,14 @@ public class Translate {
   }
 
   public Exp WhileExp(Exp test, Exp body, Label done) {
-    return Error();
+    Label testLabel = new Label();
+    Label top = new Label();
+    return new Nx(new Tree.SEQ(new Tree.JUMP(testLabel),
+      new Tree.SEQ(new Tree.LABEL(top),
+        new Tree.SEQ(body.unNx(),
+          new Tree.SEQ(new Tree.LABEL(testLabel),
+            new Tree.SEQ(test.unCx(top, done),
+              new Tree.LABEL(done)))))));
   }
 
   public Exp ForExp(Access i, Exp lo, Exp hi, Exp body, Label done) {
