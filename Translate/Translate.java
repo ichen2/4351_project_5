@@ -254,11 +254,13 @@ public class Translate {
   }
 
   public Exp ArrayExp(Exp size, Exp init) {
-    return Error();
+    Label initArray = new Label("initArray");
+    return new Ex(new Tree.CALL(NAME(initArray), new Tree.ExpList(size
+        .unEx(), new Tree.ExpList(init.unEx(), null))));
   }
 
   public Exp VarDec(Access a, Exp init) {
-    return Error();
+    return new Nx(MOVE(a.acc.exp(TEMP(a.home.frame.FP())), init.unEx()));
   }
 
   public Exp TypeDec() {
